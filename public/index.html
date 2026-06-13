@@ -1,0 +1,144 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+  <title>Planify</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Planify</h1>
+
+<a href="register.html">
+Inscription
+</a>
+
+<br><br>
+
+<a href="login.html">
+Connexion
+</a>
+
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Planify</title>
+
+  <link rel="stylesheet" href="theme.css">
+
+  <style>
+    :root {
+      --primary: #60a5fa;
+      --accent: #a78bfa;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .container {
+      max-width: 600px;
+    }
+
+    h1 {
+      font-size: 48px;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p {
+      color: var(--muted);
+      font-size: 16px;
+      margin-bottom: 30px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 12px 20px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.2s;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: scale(1.05);
+    }
+
+    .btn-secondary {
+      border: 1px solid var(--accent);
+      color: var(--accent);
+    }
+
+    .btn-secondary:hover {
+      background: var(--accent);
+      color: rgb(0, 0, 0);
+    }
+
+    .card {
+      margin-top: 40px;
+      text-align: left;
+    }
+
+    .feature {
+      margin: 10px 0;
+      color: var(--text);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <h1>Planify</h1>
+
+    <p>
+      Organise tes taches, ton temps et ton planning simplement.
+    </p>
+
+    <div class="btn-group">
+      <a class="btn btn-primary" href="register.html">
+        Creer un compte
+      </a>
+
+      <a class="btn btn-secondary" href="login.html">
+        Connexion
+      </a>
+    </div>
+
+    <div class="card">
+      <h3>Fonctionnalites</h3>
+
+      <div class="feature">- Gestion des taches</div>
+      <div class="feature">- Planning par date</div>
+      <div class="feature">- Interface sombre moderne</div>
+      <div class="feature">- Sauvegarde MongoDB</div>
+    </div>
+
+  </div>
+
+</body>
+</html>

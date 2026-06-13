@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Planify Calendar</title>
+
+  <link rel="stylesheet" href="theme.css">
+
+  <style>
+    body {
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .clock {
+      text-align: center;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: 1px;
+    }
+
+    .today-tasks {
+      background: #f3f4f6;
+      border-left: 4px solid #3b82f6;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      min-height: 50px;
+    }
+
+    .today-tasks-title {
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .today-tasks-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .today-task-item {
+      background: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      border: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .today-task-time {
+      font-weight: 600;
+      color: #3b82f6;
+    }
+
+    .today-task-empty {
+      color: #9ca3af;
+      font-style: italic;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    button.nav {
+      width: auto;
+      padding: 8px 12px;
+    }
+
+    /* calendrier */
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .day {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 8px;
+      min-height: 90px;
+      cursor: pointer;
+      border: 1px solid #eee;
+      transition: 0.2s;
+    }
+
+    .day.today {
+      border: 3px solid #ef4444;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+    }
+
+    .day:hover {
+      transform: scale(1.02);
+    }
+
+    .date {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .task {
+      font-size: 11px;
+      margin-top: 5px;
+      background: var(--primary);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 3px;
+    }
+
+    .task.low {
+      background: #3b82f6;
+    }
+
+    .task.medium {
+      background: #10b981;
+    }
+
+    .task.high {
+      background: #f59e0b;
+    }
+
+    .task.critical {
+      background: #ef4444;
+    }
+
+    .task-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .task-name {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .task-delete {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 0;
+      font-size: 14px;
+      font-weight: bold;
+      opacity: 0.7;
+      transition: 0.2s;
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .task-delete:hover {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+
+    .task-time {
+      font-size: 9px;
+      opacity: 0.9;
+      font-weight: bold;
+    }
+
+    /* modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 16px;
+      width: 300px;
+    }
+
+    .modal-content input,
+    .modal-content select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    .modal-content label {
+      display: block;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+
+    .modal-content button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #34d399;
+      color: white;
+      font-weight: 500;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div id="clock" class="clock"></div>
+
+  <div id="todayTasks" class="today-tasks"></div>
+
+  <div class="header">
+
+    <button class="nav" onclick="changeMonth(-1)">⬅</button>
+
+    <h2 id="monthTitle"></h2>
+
+    <button class="nav" onclick="changeMonth(1)">➡</button>
+
+  </div>
+
+  <div id="calendar" class="calendar"></div>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal">
+  <div class="modal-content">
+
+    <h3>Ajouter une tache</h3>
+
+    <input id="taskTitle" placeholder="Titre">
+
+    <label for="taskHour">Heure (24h):</label>
+    <div style="display: flex; gap: 8px;">
+      <input id="taskHour" type="number" min="0" max="23" value="00" style="width: 60px;" placeholder="HH">
+      <span style="align-self: center;">:</span>
+      <input id="taskMinute" type="number" min="0" max="59" value="00" style="width: 60px;" placeholder="MM">
+    </div>
+
+    <label for="taskImportance">Importance:</label>
+    <select id="taskImportance">
+      <option value="low">Pas importante (Bleu)</option>
+      <option value="medium">Un peu importante (Vert)</option>
+      <option value="high">Plus importante (Jaune)</option>
+      <option value="critical">Tres importante (Rouge)</option>
+    </select>
+
+    <button onclick="saveTask()">Ajouter</button>
+
+    <button onclick="closeModal()" style="margin-top:10px;background:#fb7185">
+      Fermer
+    </button>
+
+  </div>
+</div>
+
+<script>
+
+const userId = localStorage.getItem("userId");
+
+console.log("Page loaded, userId:", userId);
+
+if (!userId) {
+  alert("Erreur: userId non trouvé. Veuillez vous reconnecter.");
+}
+
+let currentDate = new Date();
+let selectedDate = null;
+let allTasks = [];
+
+// app start testtttttttttttdfsdfsdfsdffhdfhfghfdh
+init();
+
+async function init() {
+  updateClock();
+  setInterval(updateClock, 1000);
+  
+  await loadTasks();
+  displayTodayTasks();
+  renderCalendar();     //refreshFtest1
+}
+
+function updateClock() {
+  const now = new Date();
+  
+  const formatter = new Intl.DateTimeFormat('fr-FR', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    timeZone: 'Europe/Paris'
+  });
+
+  const formattedDate = formatter.format(now);
+  const capitalizedDate = formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
+  
+  document.getElementById("clock").textContent = capitalizedDate;
+}
+
+function displayTodayTasks() {
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
+  
+  const todayTasksList = allTasks.filter(t => t.date === todayStr);
+  
+  // Sort by time
+  todayTasksList.sort((a, b) => {
+    const timeA = a.time || "00:00";
+    const timeB = b.time || "00:00";
+    return timeA.localeCompare(timeB);
+  });
+
+  const container = document.getElementById("todayTasks");
+  
+  if (todayTasksList.length === 0) {
+    container.innerHTML = `
+      <div class="today-tasks-title">Taches d'aujourd'hui</div>
+      <div class="today-task-empty">Aucune tache prevue pour aujourd'hui</div>
+    `;
+  } else {
+    let html = `<div class="today-tasks-title">Taches d'aujourd'hui (${todayTasksList.length})</div><div class="today-tasks-list">`;
+    
+    todayTasksList.forEach(task => {
+      const importance = task.importance || "low";
+      const colorMap = {
+        low: "#3b82f6",
+        medium: "#10b981",
+        high: "#f59e0b",
+        critical: "#ef4444"
+      };
+      
+      html += `
+        <div class="today-task-item" style="border-left: 3px solid ${colorMap[importance]}">
+          <span class="today-task-time">${task.time || "00:00"}</span>
+          <span>${task.title}</span>
+        </div>
+      `;
+    });
+    
+    html += `</div>`;
+    container.innerHTML = html;
+  }
+}
+
+async function loadTasks() {
+  try {
+    const res = await fetch(`/tasks?userId=${userId}`);
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    allTasks = await res.json();
+    console.log("Tasks loaded:", allTasks);
+  } catch (error) {
+    console.error("Error loading tasks:", error);
+  }
+}
+
+function changeMonth(step) {
+  currentDate.setMonth(currentDate.getMonth() + step);
+  renderCalendar();
+}
+
+function renderCalendar() {
+
+  const calendar = document.getElementById("calendar");
+  calendar.innerHTML = "";
+
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  const monthNames = [
+    "Janvier","Fevrier","Mars","Avril","Mai","Juin",
+    "Juillet","Aout","Septembre","Octobre","Novembre","Decembre"
+  ];
+
+  document.getElementById("monthTitle").innerText =
+    monthNames[month] + " " + year;
+
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  // Get today's date
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}-${String(today.getDate()).padStart(2,"0")}`;
+
+  for (let i = 1; i <= daysInMonth; i++) {
+
+    const dateStr =
+      `${year}-${String(month+1).padStart(2,"0")}-${String(i).padStart(2,"0")}`;
+
+    const dayTasks = allTasks.filter(t => {
+      console.log(`Comparing task date "${t.date}" with calendar date "${dateStr}"`, t.date === dateStr);
+      return t.date === dateStr;
+    });
+
+    // Sort tasks by time (chronologically)
+    dayTasks.sort((a, b) => {
+      const timeA = a.time || "00:00";
+      const timeB = b.time || "00:00";
+      return timeA.localeCompare(timeB);
+    });
+
+    const day = document.createElement("div");
+    day.className = "day";
+    
+    // Add 'today' class if it's today
+    if (dateStr === todayStr) {
+      day.classList.add("today");
+    }
+
+    let tasksHTML = "";
+
+    dayTasks.forEach(t => {
+      const importance = t.importance || "low";
+      const time = t.time || "00:00";
+      tasksHTML += `<div class="task ${importance}"><div class="task-time">${time}</div><div class="task-container"><span class="task-name">${t.title}</span><button class="task-delete" onclick="deleteTask(event, '${t._id}')">×</button></div></div>`;
+    });
+
+    day.innerHTML = `
+      <div class="date">${i}</div>
+      ${tasksHTML}
+    `;
+
+    day.onclick = () => openModal(dateStr);
+
+    calendar.appendChild(day);
+  }
+}
+
+function openModal(date) {
+  selectedDate = date;
+  console.log("Modal opened for date:", selectedDate);
+  document.getElementById("modal").style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("modal").style.display = "none";
+  document.getElementById("taskTitle").value = "";
+  document.getElementById("taskHour").value = "00";
+  document.getElementById("taskMinute").value = "00";
+  document.getElementById("taskImportance").value = "low";
+}
+
+async function deleteTask(event, taskId) {
+  event.stopPropagation();
+  
+  if (!confirm("Êtes-vous sûr de vouloir supprimer cette tâche ?")) {
+    return;
+  }
+
+  try {
+    const res = await fetch(`/task/${taskId}`, {
+      method: "DELETE"
+    });
+
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    
+    console.log("Task deleted successfully");
+    await loadTasks();
+    displayTodayTasks();
+    renderCalendar();
+  } catch (error) {
+    console.error("Error deleting task:", error);
+    alert("Erreur lors de la suppression de la tâche");
+  }
+}
+
+async function saveTask() {
+  try {
+    if (!taskTitle.value.trim()) {
+      alert("Veuillez entrer un titre");
+      return;
+    }
+
+    const hour = parseInt(document.getElementById("taskHour").value) || 0;
+    const minute = parseInt(document.getElementById("taskMinute").value) || 0;
+
+    if (hour < 0 || hour > 23) {
+      alert("L heure doit etre entre 00 et 23");
+      return;
+    }
+
+    if (minute < 0 || minute > 59) {
+      alert("Les minutes doivent etre entre 00 et 59");
+      return;
+    }
+
+    const hourStr = String(hour).padStart(2, "0");
+    const minuteStr = String(minute).padStart(2, "0");
+    const time = `${hourStr}:${minuteStr}`;
+
+    const taskData = {
+      userId,
+      title: taskTitle.value,
+      date: selectedDate,
+      time: time,
+      importance: document.getElementById("taskImportance").value
+    };
+    
+    console.log("Saving task:", taskData);
+
+    const res = await fetch("/task", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(taskData)
+    });
+
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    
+    const savedTask = await res.json();
+    console.log("Task saved successfully:", savedTask);
+
+    taskTitle.value = "";
+    document.getElementById("taskHour").value = "00";
+    document.getElementById("taskMinute").value = "00";
+    document.getElementById("taskImportance").value = "low";
+    closeModal();
+
+    await loadTasks(); // refresh test
+    displayTodayTasks();
+    renderCalendar();    //refresh 1
+  } catch (error) {
+    console.error("Error saving task:", error);
+    alert("Erreur lors de l'ajout de la tâche");
+  }
+}
+</script>
+
+</body>
+</html>

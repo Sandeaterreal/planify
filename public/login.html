@@ -1,0 +1,122 @@
+<!-- <!DOCTYPE html>
+<html>
+<body>
+
+<h1>Connexion</h1>
+
+<input id="email"
+placeholder="Email">
+
+<br>
+
+<input id="password"
+type="password"
+placeholder="Mot de passe">
+
+<br><br>
+
+<button onclick="login()">
+Connexion
+</button>
+
+<script>
+
+async function login(){
+
+ const res = await fetch("/login",{
+
+   method:"POST",
+
+   headers:{
+     "Content-Type":"application/json"
+   },
+
+   body:JSON.stringify({
+
+     email:email.value,
+
+     password:password.value
+
+   })
+
+ });
+
+ const data = await res.json();
+
+ localStorage.setItem(
+   "userId",
+   data.userId
+ );
+
+ location.href =
+ "dashboard.html";
+
+}
+
+</script>
+
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Connexion</title>
+
+  <link rel="stylesheet" href="theme.css">
+
+  <style>
+    :root {
+      --primary: #60a5fa;
+      --accent: #93c5fd;
+    }
+
+    body {
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card" style="width:320px">
+
+    <h2>Connexion</h2>
+
+    <input id="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Mot de passe">
+
+    <button onclick="login()">Se connecter</button>
+
+    <p style="text-align:center;margin-top:10px">
+      <a href="register.html">Créer un compte</a>
+    </p>
+
+  </div>
+
+  <script>
+    async function login() {
+
+      const res = await fetch("/login", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          email: email.value,
+          password: password.value
+        })
+      });
+
+      const data = await res.json();
+
+      localStorage.setItem("userId", data.userId);
+
+      location.href = "dashboard.html";
+    }
+  </script>
+
+</body>
+</html>
